@@ -1,0 +1,151 @@
+﻿openapi: "3.1.0"
+info:
+  title: UUMit Finance Data Service
+  version: 1.0.0
+  description: |
+    面向 UUMit A2A 能力网络的金融数据 REST API。
+    覆盖 A 股、指数、基金、期货、宏观经济六大板块。
+
+    部署后 API 文档自动生成: http://your-server:8800/docs
+servers:
+  - url: http://localhost:8800
+    description: 本地开发
+paths:
+  /:
+    get:
+      summary: 健康检查
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /api/v1/stock/list:
+    get:
+      tags: [股票]
+      summary: 获取 A 股股票基础列表
+      parameters: &stock_list_params
+        - { name: list_status, in: query, schema: { type: string, enum: [L, D, P], default: L }, description: 上市状态 }
+        - { name: ts_code, in: query, schema: { type: string }, description: 指定股票代码 }
+      responses: { "200": { description: OK } }
+  /api/v1/stock/daily:
+    get:
+      tags: [股票]
+      summary: 获取股票日线行情
+      parameters:
+        - { name: ts_code, in: query, required: true, schema: { type: string } }
+        - { name: start_date, in: query, schema: { type: string } }
+        - { name: end_date, in: query, schema: { type: string } }
+      responses: { "200": { description: OK } }
+  /api/v1/stock/basic:
+    get:
+      tags: [股票]
+      summary: 获取股票基本信息
+      parameters:
+        - { name: ts_code, in: query, required: true, schema: { type: string } }
+      responses: { "200": { description: OK }, "404": { description: 未找到 } }
+  /api/v1/stock/income:
+    get:
+      tags: [财务]
+      summary: 获取利润表
+      parameters:
+        - { name: ts_code, in: query, required: true, schema: { type: string } }
+        - { name: start_date, in: query, schema: { type: string } }
+        - { name: end_date, in: query, schema: { type: string } }
+      responses: { "200": { description: OK } }
+  /api/v1/stock/balance:
+    get:
+      tags: [财务]
+      summary: 获取资产负债表
+      parameters:
+        - { name: ts_code, in: query, required: true, schema: { type: string } }
+        - { name: start_date, in: query, schema: { type: string } }
+        - { name: end_date, in: query, schema: { type: string } }
+      responses: { "200": { description: OK } }
+  /api/v1/index/daily:
+    get:
+      tags: [指数]
+      summary: 获取指数日线
+      parameters:
+        - { name: index_code, in: query, required: true, schema: { type: string } }
+        - { name: start_date, in: query, schema: { type: string } }
+        - { name: end_date, in: query, schema: { type: string } }
+      responses: { "200": { description: OK } }
+  /api/v1/index/members:
+    get:
+      tags: [指数]
+      summary: 获取指数成分股
+      parameters:
+        - { name: index_code, in: query, required: true, schema: { type: string } }
+        - { name: trade_date, in: query, schema: { type: string } }
+      responses: { "200": { description: OK } }
+  /api/v1/fund/list:
+    get:
+      tags: [基金]
+      summary: 获取基金列表
+      parameters:
+        - { name: market, in: query, schema: { type: string, enum: [E, O], default: E } }
+      responses: { "200": { description: OK } }
+  /api/v1/futures/daily:
+    get:
+      tags: [期货]
+      summary: 获取期货日线
+      parameters:
+        - { name: trade_date, in: query, schema: { type: string } }
+        - { name: ts_code, in: query, schema: { type: string } }
+        - { name: exchange, in: query, schema: { type: string } }
+      responses: { "200": { description: OK } }
+  /api/v1/macro/china:
+    get:
+      tags: [宏观]
+      summary: 获取宏观经济指标
+      parameters:
+        - { name: year, in: query, schema: { type: string } }
+        - { name: quarter, in: query, schema: { type: string } }
+      responses: { "200": { description: OK } }
+  /api/v1/calendar:
+    get:
+      tags: [工具]
+      summary: 获取交易日历
+      parameters:
+        - { name: exchange, in: query, schema: { type: string, enum: [SSE, SZSE, CFFEX], default: SSE } }
+        - { name: start_date, in: query, schema: { type: string } }
+        - { name: end_date, in: query, schema: { type: string } }
+      responses: { "200": { description: OK } }
+  /api/v1/combo/quant_basic:
+    post:
+      tags: [组合编排]
+      summary: 量化基础数据包
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ts_code]
+              properties:
+                ts_code: { type: string, description: 股票代码 }
+                days: { type: integer, default: 30, description: 回溯天数 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComboQuantResponse"
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status: { type: string }
+        version: { type: string }
+    ComboQuantResponse:
+      type: object
+      properties:
+        ts_code: { type: string }
+        stock_info: { type: object }
+        daily_bars: { type: array, items: { type: object } }
+        income: { type: array, items: { type: object } }
+        balance: { type: array, items: { type: object } }

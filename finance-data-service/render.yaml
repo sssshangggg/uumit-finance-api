@@ -1,0 +1,15 @@
+﻿services:
+  - type: web
+    name: uumit-finance-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn src.server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: TUSHARE_TOKEN
+        sync: false
+      - key: CACHE_TTL_SECONDS
+        value: "300"
+      - key: UUMIT_API_KEY
+        sync: false
+      - key: UUMIT_USER_ID
+        value: "71e2c0fd-f489-476b-b79b-005de54b6ed7"

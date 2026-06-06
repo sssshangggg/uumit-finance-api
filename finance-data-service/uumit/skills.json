@@ -1,0 +1,329 @@
+{
+  "version": "1.0.0",
+  "provider": "UUMit Finance Data",
+  "base_url": "https://your-deployed-server.com",
+  "skills": [
+    {
+      "name": "A股股票基础列表",
+      "category": "finance",
+      "description": "获取沪深京全部A股股票基础信息，包括代码、名称、行业、地区、上市日期等。支持按上市状态过滤。",
+      "pricing": {
+        "model": "usage",
+        "amount": 50,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/stock/list",
+      "method": "GET",
+      "params": {
+        "list_status": {
+          "type": "string",
+          "enum": [
+            "L",
+            "D",
+            "P"
+          ],
+          "default": "L",
+          "desc": "L=上市, D=退市, P=暂停上市"
+        },
+        "ts_code": {
+          "type": "string",
+          "required": false,
+          "desc": "指定股票代码，如 000001.SZ"
+        }
+      }
+    },
+    {
+      "name": "A股日线行情",
+      "category": "finance",
+      "description": "获取指定股票的日线数据：开盘价、收盘价、最高价、最低价、涨跌幅、成交量、成交额。",
+      "pricing": {
+        "model": "usage",
+        "amount": 100,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/stock/daily",
+      "method": "GET",
+      "params": {
+        "ts_code": {
+          "type": "string",
+          "required": true,
+          "desc": "股票代码"
+        },
+        "start_date": {
+          "type": "string",
+          "required": false,
+          "desc": "起始日期 YYYYMMDD"
+        },
+        "end_date": {
+          "type": "string",
+          "required": false,
+          "desc": "结束日期 YYYYMMDD"
+        }
+      }
+    },
+    {
+      "name": "A股利润表查询",
+      "category": "finance",
+      "description": "获取上市公司利润表核心数据：营业收入、净利润、每股收益(EPS)、稀释每股收益等。",
+      "pricing": {
+        "model": "usage",
+        "amount": 200,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/stock/income",
+      "method": "GET",
+      "params": {
+        "ts_code": {
+          "type": "string",
+          "required": true,
+          "desc": "股票代码"
+        },
+        "start_date": {
+          "type": "string",
+          "required": false,
+          "desc": "起始报告期"
+        },
+        "end_date": {
+          "type": "string",
+          "required": false,
+          "desc": "截止报告期"
+        }
+      }
+    },
+    {
+      "name": "A股资产负债表查询",
+      "category": "finance",
+      "description": "获取上市公司资产负债表：总资产、总负债、股东权益、未分配利润等。",
+      "pricing": {
+        "model": "usage",
+        "amount": 200,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/stock/balance",
+      "method": "GET",
+      "params": {
+        "ts_code": {
+          "type": "string",
+          "required": true,
+          "desc": "股票代码"
+        },
+        "start_date": {
+          "type": "string",
+          "required": false,
+          "desc": "起始报告期"
+        },
+        "end_date": {
+          "type": "string",
+          "required": false,
+          "desc": "截止报告期"
+        }
+      }
+    },
+    {
+      "name": "指数日线行情",
+      "category": "finance",
+      "description": "获取主要市场指数日线数据：沪深300、上证综指、深证成指、中证500、创业板指等。",
+      "pricing": {
+        "model": "usage",
+        "amount": 80,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/index/daily",
+      "method": "GET",
+      "params": {
+        "index_code": {
+          "type": "string",
+          "required": true,
+          "desc": "指数代码，如 000300.SH"
+        },
+        "start_date": {
+          "type": "string",
+          "required": false,
+          "desc": "起始日期"
+        },
+        "end_date": {
+          "type": "string",
+          "required": false,
+          "desc": "结束日期"
+        }
+      }
+    },
+    {
+      "name": "指数成分股查询",
+      "category": "finance",
+      "description": "获取指定指数的成分股列表，包括调入调出日期。支持沪深300、中证500、上证50等。",
+      "pricing": {
+        "model": "usage",
+        "amount": 80,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/index/members",
+      "method": "GET",
+      "params": {
+        "index_code": {
+          "type": "string",
+          "required": true,
+          "desc": "指数代码"
+        },
+        "trade_date": {
+          "type": "string",
+          "required": false,
+          "desc": "查询日期"
+        }
+      }
+    },
+    {
+      "name": "公募基金列表",
+      "category": "finance",
+      "description": "获取公募基金基础信息：基金代码、名称、管理人、托管人、基金类型、成立日期等。",
+      "pricing": {
+        "model": "usage",
+        "amount": 50,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/fund/list",
+      "method": "GET",
+      "params": {
+        "market": {
+          "type": "string",
+          "enum": [
+            "E",
+            "O"
+          ],
+          "default": "E",
+          "desc": "E=场内, O=场外"
+        }
+      }
+    },
+    {
+      "name": "期货日线行情",
+      "category": "finance",
+      "description": "获取期货合约日线数据。支持按交易所过滤：CFFEX中金所、DCE大商所、SHFE上期所、CZCE郑商所、INE上海能源。",
+      "pricing": {
+        "model": "usage",
+        "amount": 100,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/futures/daily",
+      "method": "GET",
+      "params": {
+        "trade_date": {
+          "type": "string",
+          "required": false,
+          "desc": "交易日期"
+        },
+        "ts_code": {
+          "type": "string",
+          "required": false,
+          "desc": "合约代码"
+        },
+        "exchange": {
+          "type": "string",
+          "required": false,
+          "desc": "交易所代码"
+        }
+      }
+    },
+    {
+      "name": "中国宏观经济指标",
+      "category": "finance",
+      "description": "获取中国核心宏观经济数据：GDP及同比增速、CPI、PPI等。",
+      "pricing": {
+        "model": "usage",
+        "amount": 100,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/macro/china",
+      "method": "GET",
+      "params": {
+        "year": {
+          "type": "string",
+          "required": false,
+          "desc": "年份"
+        },
+        "quarter": {
+          "type": "string",
+          "required": false,
+          "desc": "季度"
+        }
+      }
+    },
+    {
+      "name": "交易日历查询",
+      "category": "finance",
+      "description": "获取交易所交易日历，判断某日是否为交易日。支持上交所SSE、深交所SZSE、中金所CFFEX。",
+      "pricing": {
+        "model": "usage",
+        "amount": 20,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/calendar",
+      "method": "GET",
+      "params": {
+        "exchange": {
+          "type": "string",
+          "enum": [
+            "SSE",
+            "SZSE",
+            "CFFEX"
+          ],
+          "default": "SSE",
+          "desc": "交易所"
+        },
+        "start_date": {
+          "type": "string",
+          "required": false,
+          "desc": "起始日期"
+        },
+        "end_date": {
+          "type": "string",
+          "required": false,
+          "desc": "结束日期"
+        }
+      }
+    }
+  ],
+  "combos": [
+    {
+      "name": "量化投资基础数据包",
+      "category": "finance_combo",
+      "description": "【能力组合】一键获取单只股票的完整量化分析数据：股票基本信息 + 最近N日K线 + 最新利润表 + 最新资产负债表。适用于 Agent 自动化量化选股、估值建模、技术分析等场景。内部串行调用4个API自动编排输出。",
+      "pricing": {
+        "model": "usage",
+        "amount": 500,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/combo/quant_basic",
+      "method": "POST",
+      "params": {
+        "ts_code": {
+          "type": "string",
+          "required": true,
+          "desc": "股票代码"
+        },
+        "days": {
+          "type": "integer",
+          "default": 30,
+          "desc": "回溯天数，最多365"
+        }
+      },
+      "components": [
+        "A股股票基础列表",
+        "A股日线行情",
+        "A股利润表查询",
+        "A股资产负债表查询"
+      ]
+    }
+  ]
+}
