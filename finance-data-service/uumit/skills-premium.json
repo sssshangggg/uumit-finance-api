@@ -1,0 +1,147 @@
+{
+  "version": "1.0.0",
+  "provider": "UUMit Finance Data",
+  "base_url": "https://your-deployed-server.com",
+  "skills": [
+    {
+      "name": "A股利润表查询",
+      "category": "finance",
+      "description": "获取上市公司利润表核心数据：营业收入、净利润、每股收益(EPS)、稀释每股收益等。",
+      "pricing": {
+        "model": "usage",
+        "amount": 200,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/stock/income",
+      "method": "GET",
+      "params": {
+        "ts_code": {
+          "type": "string",
+          "required": true,
+          "desc": "股票代码"
+        },
+        "start_date": {
+          "type": "string",
+          "required": false,
+          "desc": "起始报告期"
+        },
+        "end_date": {
+          "type": "string",
+          "required": false,
+          "desc": "截止报告期"
+        }
+      }
+    },
+    {
+      "name": "A股资产负债表查询",
+      "category": "finance",
+      "description": "获取上市公司资产负债表：总资产、总负债、股东权益、未分配利润等。",
+      "pricing": {
+        "model": "usage",
+        "amount": 200,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/stock/balance",
+      "method": "GET",
+      "params": {
+        "ts_code": {
+          "type": "string",
+          "required": true,
+          "desc": "股票代码"
+        },
+        "start_date": {
+          "type": "string",
+          "required": false,
+          "desc": "起始报告期"
+        },
+        "end_date": {
+          "type": "string",
+          "required": false,
+          "desc": "截止报告期"
+        }
+      }
+    },
+    {
+      "name": "公募基金列表",
+      "category": "finance",
+      "description": "获取公募基金基础信息：基金代码、名称、管理人、托管人、基金类型、成立日期等。",
+      "pricing": {
+        "model": "usage",
+        "amount": 50,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/fund/list",
+      "method": "GET",
+      "params": {
+        "market": {
+          "type": "string",
+          "enum": [
+            "E",
+            "O"
+          ],
+          "default": "E",
+          "desc": "E=场内, O=场外"
+        }
+      }
+    },
+    {
+      "name": "期货日线行情",
+      "category": "finance",
+      "description": "获取期货合约日线数据。支持按交易所过滤：CFFEX中金所、DCE大商所、SHFE上期所、CZCE郑商所、INE上海能源。",
+      "pricing": {
+        "model": "usage",
+        "amount": 100,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/futures/daily",
+      "method": "GET",
+      "params": {
+        "trade_date": {
+          "type": "string",
+          "required": false,
+          "desc": "交易日期"
+        },
+        "ts_code": {
+          "type": "string",
+          "required": false,
+          "desc": "合约代码"
+        },
+        "exchange": {
+          "type": "string",
+          "required": false,
+          "desc": "交易所代码"
+        }
+      }
+    },
+    {
+      "name": "中国宏观经济指标",
+      "category": "finance",
+      "description": "获取中国核心宏观经济数据：GDP及同比增速、CPI、PPI等。",
+      "pricing": {
+        "model": "usage",
+        "amount": 100,
+        "currency": "UT"
+      },
+      "mode": "online",
+      "endpoint": "/api/v1/macro/china",
+      "method": "GET",
+      "params": {
+        "year": {
+          "type": "string",
+          "required": false,
+          "desc": "年份"
+        },
+        "quarter": {
+          "type": "string",
+          "required": false,
+          "desc": "季度"
+        }
+      }
+    }
+  ],
+  "combos": []
+}

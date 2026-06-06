@@ -9,6 +9,15 @@ import sys
 import httpx
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "skills.json")
+
+# Allow overriding config file via --file argument
+for i, arg in enumerate(sys.argv):
+    if arg == "--file" and i + 1 < len(sys.argv):
+        CONFIG_PATH = sys.argv[i + 1]
+        # Remove from argv so dry-run detection still works
+        sys.argv.pop(i)
+        sys.argv.pop(i)
+        break
 UUMIT_API_BASE = os.getenv("UUMIT_API_BASE", "https://api.uumit.com")
 UUMIT_API_KEY = os.getenv("UUMIT_API_KEY", "")
 UUMIT_USER_ID = os.getenv("UUMIT_USER_ID", "")
