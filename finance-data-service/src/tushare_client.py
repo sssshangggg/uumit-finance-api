@@ -188,7 +188,7 @@ def query_macro_china(year: Optional[str] = None,
         kwargs["year"] = year
     if quarter:
         kwargs["quarter"] = quarter
-    return _cached_query("macro_china" if not year else "macro_china", **kwargs)
+    return _cached_query("cn_gdp" if not year else "cn_gdp", **kwargs)
 
 
 # ---- 交易日历 ----
