@@ -44,6 +44,7 @@ def register(skill, client, base_url, dry_run):
         "request_schema": build_request_schema(skill),
         "response_schema": {"type": "object", "properties": {"count": {"type": "integer"}, "data": {"type": "array"}}},
         "price_ut": str(skill["pricing"]["amount"]),
+        "test_params": skill.get("test_params", {}),
         "detail_content": skill.get("detail", skill["description"]),
     }
     if dry_run:
