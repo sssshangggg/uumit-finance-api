@@ -337,7 +337,7 @@ def finance_pack(
 
 
 class AIDetectRequest(BaseModel):
-    text: str = Field(..., description="待检测文本", min_length=10)
+    text: str = Field(..., description="待检测文本", min_length=5)
 
 class AIDetectResponse(BaseModel):
     score: float
@@ -351,7 +351,7 @@ def tool_detect_ai(req: AIDetectRequest):
     return detect_ai_text(req.text)
 
 class ViralVerifyRequest(BaseModel):
-    content: str = Field(..., description="待验证的文章内容", min_length=50)
+    content: str = Field(..., description="待验证的文章内容", min_length=20)
 
 @app.post("/api/v1/tools/viral-verify", tags=["AI内容工具"],
            summary="爆款内容验证",

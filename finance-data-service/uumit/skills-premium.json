@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "provider": "UUMit Finance Data",
-  "base_url": "http://47.98.96.250:8800",
+  "base_url": "https://shirt-conjoined-rasping.ngrok-free.dev",
   "skills": [
     {
       "name": "A股利润表查询",

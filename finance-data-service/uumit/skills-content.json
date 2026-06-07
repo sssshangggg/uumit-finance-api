@@ -30,7 +30,7 @@
       ],
       "detail": "零API依赖的纯规则引擎AI文本检测。分析句子长度变异系数、12种AI典型句式匹配、过渡词密度、填充词频率。即时返回0-100分+ verdict + 详细指标。适合内容审核Agent、教育机构、自媒体检测。",
       "test_params": {
-        "text": "In today's digital landscape, it is important to note that AI has become a cornerstone of modern technology."
+        "text": "In today's digital landscape, it is important to note that artificial intelligence has become a cornerstone of modern technology. Furthermore, the realm of AI continues to expand rapidly."
       }
     },
     {
@@ -61,7 +61,7 @@
       ],
       "detail": "六维度爆款内容验证：量化分析好奇心缺口、情绪共鸣、价值实用、时效关联、叙事节奏、反直觉新颖性。纯规则引擎，零延迟。适合内容创作Agent质量把关、自媒体批量审稿。",
       "test_params": {
-        "content": "测试文章内容，需要至少50个字符才能进行有效的爆款验证分析。"
+        "content": "这是一段足够长的测试文本内容，用于验证爆款内容检测API是否能够正常工作。今天天气很好，阳光明媚，万里无云。适合出去走走，呼吸新鲜空气。"
       }
     },
     {
