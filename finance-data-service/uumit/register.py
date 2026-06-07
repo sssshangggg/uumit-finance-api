@@ -1,5 +1,7 @@
 ﻿"""UUMit 数据广场 API 批量上架脚本"""
 import json, os, sys, httpx
+from dotenv import load_dotenv
+load_dotenv()
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "skills.json")
 for i, arg in enumerate(sys.argv):

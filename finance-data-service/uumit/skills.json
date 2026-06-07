@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "provider": "UUMit Finance Data",
-  "base_url": "https://your-deployed-server.com",
+  "base_url": "http://47.98.96.250:443",
   "skills": [
     {
       "name": "A股股票基础列表",
