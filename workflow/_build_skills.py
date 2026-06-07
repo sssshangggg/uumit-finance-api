@@ -1,0 +1,78 @@
+﻿import json
+url = "https://shirt-conjoined-rasping.ngrok-free.dev"
+cfg = {
+    "version": "1.1.0",
+    "provider": "UUMit Finance Data",
+    "base_url": url,
+    "skills": [],
+    "combos": [
+        {
+            "name": "A股深度数据包",
+            "category": "finance",
+            "description": "单只A股完整数据一键获取：股票基本信息 + 30日日线行情 + 最新利润表 + 最新资产负债表。适合量化分析、估值建模、基本面研究。内部并行调用4个API自动编排输出。",
+            "pricing": {"model": "usage", "amount": 300, "currency": "UT"},
+            "mode": "online",
+            "endpoint": "/api/v1/combo/finance-pack",
+            "method": "POST",
+            "params": {
+                "pack": {"type": "string", "required": True, "default": "stock_deep", "desc": "固定值 stock_deep"},
+                "ts_code": {"type": "string", "required": True, "desc": "股票代码，如 000001.SZ"}
+            },
+            "tags": ["A股", "日线", "利润表", "资产负债表", "量化", "估值"],
+            "detail": "一键获取单只A股完整数据集：基本信息、30日日线（开高低收量额）、利润表（营收/净利润/EPS）、资产负债表（总资产/负债/权益）。数据源Tushare Pro，缓存5分钟。适合Agent自动化量化选股、估值建模。",
+            "test_params": {"pack": "stock_deep", "ts_code": "000001.SZ"}
+        },
+        {
+            "name": "市场全景数据包",
+            "category": "finance",
+            "description": "一键获取全市场概况：沪深300指数日线 + 期货主力合约行情 + 公募基金列表。适合市场情绪判断、大类资产配置、趋势扫描。",
+            "pricing": {"model": "usage", "amount": 200, "currency": "UT"},
+            "mode": "online",
+            "endpoint": "/api/v1/combo/finance-pack",
+            "method": "POST",
+            "params": {
+                "pack": {"type": "string", "required": True, "default": "market_overview", "desc": "固定值 market_overview"},
+                "index_code": {"type": "string", "required": False, "default": "000300.SH", "desc": "指数代码"},
+                "exchange": {"type": "string", "required": False, "default": "DCE", "desc": "期货交易所"}
+            },
+            "tags": ["指数", "期货", "基金", "市场全景", "资产配置"],
+            "detail": "全市场概况：沪深300等主要指数日线、五大期货交易所主力合约行情、公募基金列表。一调用掌握市场全貌。",
+            "test_params": {"pack": "market_overview"}
+        },
+        {
+            "name": "宏观简报数据包",
+            "category": "finance",
+            "description": "中国核心宏观经济数据 + 交易日历。GDP增速、CPI、PPI等核心指标一键获取，配合交易日历判断市场状态。",
+            "pricing": {"model": "usage", "amount": 150, "currency": "UT"},
+            "mode": "online",
+            "endpoint": "/api/v1/combo/finance-pack",
+            "method": "POST",
+            "params": {
+                "pack": {"type": "string", "required": True, "default": "macro_brief", "desc": "固定值 macro_brief"}
+            },
+            "tags": ["宏观", "GDP", "CPI", "PPI", "交易日历", "中国经济"],
+            "detail": "中国宏观简报：GDP及同比增速、CPI、PPI等核心指标，配合三大交易所交易日历。适合宏观研究、政策分析、投资决策参考。",
+            "test_params": {"pack": "macro_brief"}
+        },
+        {
+            "name": "金融全能数据包",
+            "category": "finance",
+            "description": "最强数据包：A股深度 + 市场全景 + 宏观简报，一次调用拿到全部金融数据。适合全能型Agent、智能投研助手。",
+            "pricing": {"model": "usage", "amount": 500, "currency": "UT"},
+            "mode": "online",
+            "endpoint": "/api/v1/combo/finance-pack",
+            "method": "POST",
+            "params": {
+                "pack": {"type": "string", "required": True, "default": "all_in_one", "desc": "固定值 all_in_one"},
+                "ts_code": {"type": "string", "required": True, "desc": "股票代码"},
+                "index_code": {"type": "string", "required": False, "default": "000300.SH", "desc": "指数代码"}
+            },
+            "tags": ["全能", "A股", "指数", "期货", "宏观", "量化", "投研"],
+            "detail": "金融全能包 = A股深度 + 市场全景 + 宏观简报。单只股票完整数据 + 全市场概况 + 宏观经济指标。一次调用覆盖全部金融分析需求。",
+            "test_params": {"pack": "all_in_one", "ts_code": "000001.SZ"}
+        }
+    ]
+}
+with open(r"C:\Users\MECHREVO\Documents\UUMit\finance-data-service\uumit\skills.json", "w", encoding="utf-8") as f:
+    json.dump(cfg, f, ensure_ascii=False, indent=2)
+print("skills.json updated with 4 packages")

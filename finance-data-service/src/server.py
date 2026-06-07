@@ -273,6 +273,65 @@ def combo_quant_basic(req: ComboQuantRequest):
 
 # ── 启动入口 ──────────────────────────────────────────
 
+
+# -- ★ 聚合端点：金融数据主题包 -- 
+
+from enum import Enum
+
+class FinancePack(str, Enum):
+    stock_deep = "stock_deep"
+    market_overview = "market_overview"
+    macro_brief = "macro_brief"
+    all_in_one = "all_in_one"
+
+class FinancePackResponse(BaseModel):
+    pack: str
+    description: str
+    data: dict = {}
+
+@app.post("/api/v1/combo/finance-pack", tags=["组合编排"],
+           summary="金融数据主题包（整合入口）",
+           description="一个端点覆盖全部金融数据。按 pack 参数选择主题：stock_deep=A股深度 / market_overview=市场全景 / macro_brief=宏观简报 / all_in_one=全能包。",
+           response_model=FinancePackResponse)
+def finance_pack(
+    pack: FinancePack = Query(..., description="主题包类型"),
+    ts_code: Optional[str] = Query(None, description="股票代码（stock_deep/all_in_one 需要）"),
+    index_code: Optional[str] = Query("000300.SH", description="指数代码"),
+    exchange: Optional[str] = Query("SSE", description="交易所"),
+):
+    result = {}
+    
+    if pack in (FinancePack.stock_deep, FinancePack.all_in_one):
+        if not ts_code:
+            raise HTTPException(400, "stock_deep/all_in_one 需要 ts_code 参数")
+        result["stock_basic"] = _df_to_records(tc.query_stock_basic(ts_code=ts_code))
+        result["stock_daily"] = _df_to_records(tc.query_daily(ts_code, *_default_dates(30)))
+        result["stock_income"] = _df_to_records(tc.query_income(ts_code))[:4]
+        result["stock_balance"] = _df_to_records(tc.query_balancesheet(ts_code))[:4]
+    
+    if pack in (FinancePack.market_overview, FinancePack.all_in_one):
+        result["index_daily"] = _df_to_records(tc.query_index_daily(index_code, *_default_dates(30)))
+        result["futures_daily"] = _df_to_records(tc.query_fut_daily(exchange=exchange))[:20]
+        result["fund_list"] = _df_to_records(tc.query_fund_basic())[:20]
+    
+    if pack in (FinancePack.macro_brief, FinancePack.all_in_one):
+        result["macro_china"] = _df_to_records(tc.query_macro_china())[:20]
+        result["trade_calendar"] = _df_to_records(tc.query_trade_cal(exchange, *_default_dates(90)))[:10]
+    
+    descriptions = {
+        "stock_deep": "单只A股完整数据：基本信息 + 30日日线 + 利润表 + 资产负债表",
+        "market_overview": "市场全景：指数行情 + 期货日线 + 基金列表",
+        "macro_brief": "宏观简报：GDP/CPI/PPI + 交易日历",
+        "all_in_one": "全能数据包：以上全部",
+    }
+    
+    return FinancePackResponse(
+        pack=pack.value,
+        description=descriptions.get(pack.value, ""),
+        data=result,
+    )
+
+
 if __name__ == "__main__":
     import uvicorn
     host = os.getenv("SERVER_HOST", "0.0.0.0")
