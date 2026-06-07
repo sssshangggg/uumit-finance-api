@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 import pandas as pd
 
 from . import tushare_client as tc
+from .content_tools import detect_ai_text, verify_viral, fetch_hot_topics
 
 app = FastAPI(
     title="UUMit Finance Data Service",
@@ -330,6 +331,40 @@ def finance_pack(
         description=descriptions.get(pack.value, ""),
         data=result,
     )
+
+
+# -- ★ AI 内容工具 API --
+
+
+class AIDetectRequest(BaseModel):
+    text: str = Field(..., description="待检测文本", min_length=10)
+
+class AIDetectResponse(BaseModel):
+    score: float
+    verdict: str
+    details: dict = {}
+
+@app.post("/api/v1/tools/detect-ai", tags=["AI内容工具"],
+           summary="AI 文本检测",
+           description="检测文本是否为 AI 生成。基于句子结构、过渡词密度、AI 句式模式匹配等启发式规则。返回 0-100 分数和详细分析。")
+def tool_detect_ai(req: AIDetectRequest):
+    return detect_ai_text(req.text)
+
+class ViralVerifyRequest(BaseModel):
+    content: str = Field(..., description="待验证的文章内容", min_length=50)
+
+@app.post("/api/v1/tools/viral-verify", tags=["AI内容工具"],
+           summary="爆款内容验证",
+           description="六维度爆款要素评分：好奇心缺口、情绪共鸣、价值/实用性、关联/时效性、叙事/节奏、反直觉/新颖性。纯规则引擎，即时返回评分和优化建议。")
+def tool_viral_verify(req: ViralVerifyRequest):
+    return verify_viral(req.content)
+
+@app.get("/api/v1/tools/hot-topics", tags=["AI内容工具"],
+          summary="实时热点选题",
+          description="从 TopHub 抓取当前全网热榜，返回 TOP 20 话题。适合内容创作者、自媒体 Agent 快速选题。")
+def tool_hot_topics(limit: int = Query(20, ge=5, le=50, description="返回数量")):
+    topics = fetch_hot_topics(limit)
+    return {"count": len(topics), "source": "TopHub", "topics": topics}
 
 
 if __name__ == "__main__":

@@ -1,0 +1,79 @@
+﻿import json, os
+from dotenv import load_dotenv
+load_dotenv()
+
+url = "https://shirt-conjoined-rasping.ngrok-free.dev"
+
+cfg = {
+    "version": "1.0.0",
+    "provider": "UUMit AI Content Tools",
+    "base_url": url,
+    "skills": [
+        {
+            "name": "AI文本检测",
+            "category": "content",
+            "description": "检测文本是否为AI生成。基于句子结构变异系数、AI句式模式匹配、过渡词密度、填充词等启发式规则。返回0-100分数和详细分析报告。",
+            "pricing": {"model": "usage", "amount": 5, "currency": "UT"},
+            "mode": "online",
+            "endpoint": "/api/v1/tools/detect-ai",
+            "method": "POST",
+            "params": {
+                "text": {"type": "string", "required": True, "desc": "待检测文本，最少10字符"}
+            },
+            "tags": ["AI检测", "文本分析", "内容审核", "原创检测"],
+            "detail": "零API依赖的纯规则引擎AI文本检测。分析句子长度变异系数、12种AI典型句式匹配、过渡词密度、填充词频率。即时返回0-100分+ verdict + 详细指标。适合内容审核Agent、教育机构、自媒体检测。",
+            "test_params": {"text": "In today's digital landscape, it is important to note that AI has become a cornerstone of modern technology."}
+        },
+        {
+            "name": "爆款内容验证",
+            "category": "content",
+            "description": "六维度爆款要素评分：好奇心缺口、情绪共鸣、价值/实用性、关联/时效性、叙事/节奏、反直觉/新颖性。纯规则引擎，即时返回评分和优化建议。",
+            "pricing": {"model": "usage", "amount": 10, "currency": "UT"},
+            "mode": "online",
+            "endpoint": "/api/v1/tools/viral-verify",
+            "method": "POST",
+            "params": {
+                "content": {"type": "string", "required": True, "desc": "待验证的文章内容，最少50字符"}
+            },
+            "tags": ["爆款", "内容优化", "验证", "写作", "自媒体"],
+            "detail": "六维度爆款内容验证：量化分析好奇心缺口、情绪共鸣、价值实用、时效关联、叙事节奏、反直觉新颖性。纯规则引擎，零延迟。适合内容创作Agent质量把关、自媒体批量审稿。",
+            "test_params": {"content": "测试文章内容，需要至少50个字符才能进行有效的爆款验证分析。"}
+        },
+        {
+            "name": "实时热点选题",
+            "category": "content",
+            "description": "从TopHub实时抓取全网热榜TOP 20，返回排名、标题、来源、热度。适合内容创作者、自媒体Agent快速选题。",
+            "pricing": {"model": "usage", "amount": 5, "currency": "UT"},
+            "mode": "online",
+            "endpoint": "/api/v1/tools/hot-topics",
+            "method": "GET",
+            "params": {
+                "limit": {"type": "integer", "required": False, "default": 20, "desc": "返回数量，5-50"}
+            },
+            "tags": ["热点", "选题", "热榜", "内容创作", "自媒体"],
+            "detail": "实时抓取全网热榜TOP 20：知乎、微博、虎扑、百度等多平台聚合。包含排名、完整标题、来源平台、热度数值。适合Agent自动选题、热点追踪。",
+            "test_params": {"limit": 10}
+        }
+    ],
+    "combos": [
+        {
+            "name": "AI内容工具箱（三合一）",
+            "category": "content_combo",
+            "description": "AI内容创作全流程：热点选题 -> 爆款验证 -> AI文本检测。一次调用覆盖内容创作的选题、优化、审核三个环节。",
+            "pricing": {"model": "usage", "amount": 15, "currency": "UT"},
+            "mode": "online",
+            "endpoint": "/api/v1/tools/hot-topics",
+            "method": "GET",
+            "params": {"limit": {"type": "integer", "default": 20, "desc": "热点数量"}},
+            "tags": ["AI", "内容", "工具箱", "组合"],
+            "detail": "三合一内容工具箱 = 热点选题 + 爆款验证 + AI检测。内容创作Agent的最佳搭档。",
+            "test_params": {"limit": 10},
+            "components": ["AI文本检测", "爆款内容验证", "实时热点选题"]
+        }
+    ]
+}
+
+path = r"C:\Users\MECHREVO\Documents\UUMit\finance-data-service\uumit\skills-content.json"
+with open(path, "w", encoding="utf-8") as f:
+    json.dump(cfg, f, ensure_ascii=False, indent=2)
+print(f"skills-content.json written with {len(cfg['skills'])} skills + {len(cfg['combos'])} combo")
