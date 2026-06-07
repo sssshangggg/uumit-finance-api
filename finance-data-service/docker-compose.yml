@@ -1,9 +1,9 @@
-﻿services:
+services:
   finance-api:
     build: .
     container_name: uumit-finance
     ports:
-      - "8800:8800"
+      - "443:8800"
     env_file:
       - .env
     restart: unless-stopped

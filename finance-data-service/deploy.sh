@@ -1,42 +1,42 @@
-ï»¿#!/bin/bash
-# VPS ä¸€é”®éƒ¨ç½²è„šæœ¬
-# ä½¿ç”¨æ–¹æ³•: bash deploy.sh
+#!/bin/bash
+# VPS Ò»¼ü²¿Êğ½Å±¾
+# Ê¹ÓÃ·½·¨: bash deploy.sh
 
 set -e
 
-echo "=== UUMit é‡‘èæ•°æ®æœåŠ¡éƒ¨ç½² ==="
+echo "=== UUMit ½ğÈÚÊı¾İ·şÎñ²¿Êğ ==="
 
-# æ£€æŸ¥ Docker
+# ¼ì²é Docker
 if ! command -v docker &> /dev/null; then
-    echo "å®‰è£… Docker..."
+    echo "°²×° Docker..."
     curl -fsSL https://get.docker.com | sh
 fi
 
-# æ£€æŸ¥ .env
+# ¼ì²é .env
 if [ ! -f .env ]; then
-    echo "è¯·å…ˆåˆ›å»º .env æ–‡ä»¶ï¼ˆå‚è€ƒ .env.exampleï¼‰"
+    echo "ÇëÏÈ´´½¨ .env ÎÄ¼ş£¨²Î¿¼ .env.example£©"
     exit 1
 fi
 
 if grep -q "your_tushare_token_here" .env 2>/dev/null || grep -q "^TUSHARE_TOKEN=$" .env; then
-    echo "é”™è¯¯: è¯·åœ¨ .env ä¸­å¡«å…¥ Tushare Token"
-    echo "æ³¨å†Œè·å–: https://tushare.pro/register"
+    echo "´íÎó: ÇëÔÚ .env ÖĞÌîÈë Tushare Token"
+    echo "×¢²á»ñÈ¡: https://tushare.pro/register"
     exit 1
 fi
 
-# æ„å»ºå¹¶å¯åŠ¨
+# ¹¹½¨²¢Æô¶¯
 docker compose up -d --build
 
-# ç­‰å¾…æœåŠ¡å¯åŠ¨
-echo "ç­‰å¾…æœåŠ¡å¯åŠ¨..."
+# µÈ´ı·şÎñÆô¶¯
+echo "µÈ´ı·şÎñÆô¶¯..."
 sleep 3
 
-# éªŒè¯
-if curl -s http://localhost:8800/ | grep -q "ok"; then
+# ÑéÖ¤
+if curl -s http://localhost:443/ | grep -q "ok"; then
     echo ""
-    echo "éƒ¨ç½²æˆåŠŸï¼"
-    echo "API æ–‡æ¡£: http://$(curl -s ifconfig.me):8800/docs"
-    echo "å¥åº·æ£€æŸ¥: http://$(curl -s ifconfig.me):8800/"
+    echo "²¿Êğ³É¹¦£¡"
+    echo "API ÎÄµµ: http://$(curl -s ifconfig.me):443/docs"
+    echo "½¡¿µ¼ì²é: http://$(curl -s ifconfig.me):443/"
 else
-    echo "æœåŠ¡å¯èƒ½æœªæ­£å¸¸å¯åŠ¨ï¼Œè¯·æ£€æŸ¥æ—¥å¿—: docker compose logs"
+    echo "·şÎñ¿ÉÄÜÎ´Õı³£Æô¶¯£¬Çë¼ì²éÈÕÖ¾: docker compose logs"
 fi
