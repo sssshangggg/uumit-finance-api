@@ -1,4 +1,4 @@
-﻿"""AI 内容工具引擎 — 零外部依赖，纯规则引擎 + 网页抓取"""
+"""AI 内容工具引擎 — 零外部依赖，纯规则引擎 + 网页抓取"""
 
 import re, math
 from collections import Counter
@@ -330,7 +330,7 @@ def check_banned_words(text):
                 idx = text.index(word)
                 flags.append({"word": word, "position": idx, "category": f"{industry}行业敏感词", "category_en": "industry", "severity": "high", "suggestion": f"涉及{industry}行业，建议删除或提供资质"})
     for pattern, desc in BANNED_REGEX_PATTERNS:
-        for match in _re.finditer(pattern, text):
+        for match in re.finditer(pattern, text):
             matched = match.group()
             if not any(f.get("word") == matched for f in flags):
                 flags.append({"word": matched, "position": match.start(), "category": desc, "category_en": "regex_pattern", "severity": "high", "suggestion": f"检测到{desc}，建议修改"})
