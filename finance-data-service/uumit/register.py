@@ -44,7 +44,7 @@ def register(skill, client, base_url, dry_run):
         "upstream_method": skill.get("method", "GET"),
         "upstream_url": base_url + skill.get("endpoint", ""),
         "request_schema": build_request_schema(skill),
-        "response_schema": {"type": "object", "properties": {"count": {"type": "integer"}, "data": {"type": "array"}}},
+        "response_schema": skill.get("response_schema", {"type": "object", "properties": {"count": {"type": "integer"}, "data": {"type": "array"}}}),
         "price_ut": str(skill["pricing"]["amount"]),
         "test_params": skill.get("test_params", {}),
         "detail_content": skill.get("detail", skill["description"]),

@@ -7,7 +7,7 @@
     {
       "name": "A股深度数据包",
       "category": "finance",
-      "description": "单只A股完整数据一键获取：股票基本信息 + 30日日线行情 + 最新利润表 + 最新资产负债表。适合量化分析、估值建模、基本面研究。内部并行调用4个API自动编排输出。",
+      "description": "单只A股完整数据一键获取：股票基本信息 + 30日日线行情 + 最新利润表 + 最新资产负债表。适合量化分析、估值建模、基本面研究。内部并行调用3个API自动编排输出。",
       "pricing": {
         "model": "usage",
         "amount": 300,
@@ -41,6 +41,26 @@
       "test_params": {
         "pack": "stock_deep",
         "ts_code": "000001.SZ"
+      },
+      "response_schema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "pack": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
       }
     },
     {
@@ -85,6 +105,26 @@
       "detail": "全市场概况：沪深300等主要指数日线、五大期货交易所主力合约行情、公募基金列表。一调用掌握市场全貌。",
       "test_params": {
         "pack": "market_overview"
+      },
+      "response_schema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "pack": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
       }
     },
     {
@@ -115,9 +155,29 @@
         "交易日历",
         "中国经济"
       ],
-      "detail": "中国宏观简报：GDP及同比增速、CPI、PPI等核心指标，配合三大交易所交易日历。适合宏观研究、政策分析、投资决策参考。",
+      "detail": "中国宏观简报：GDP及同比增长率、CPI、PPI等核心指标，配合三大交易所交易日历。适合宏观研究、政策分析、投资决策参考。",
       "test_params": {
         "pack": "macro_brief"
+      },
+      "response_schema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "pack": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
       }
     },
     {
@@ -164,6 +224,26 @@
       "test_params": {
         "pack": "all_in_one",
         "ts_code": "000001.SZ"
+      },
+      "response_schema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "pack": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
       }
     }
   ]

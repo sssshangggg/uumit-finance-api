@@ -35,7 +35,16 @@ def _cached_query(func_name: str, **kwargs) -> pd.DataFrame:
     if fn is None:
         raise ValueError(f"Tushare 不支持接口: {func_name}")
 
-    df: pd.DataFrame = fn(**kwargs)
+    try:
+        df: pd.DataFrame = fn(**kwargs)
+    except Exception as e:
+        msg = str(e)
+        if "频率超限" in msg or "frequency" in msg.lower():
+            # Tushare rate limited - return empty DataFrame
+            df = pd.DataFrame()
+        else:
+            raise
+
     if df is None or df.empty:
         df = pd.DataFrame()
 

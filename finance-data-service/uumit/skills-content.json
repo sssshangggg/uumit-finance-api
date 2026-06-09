@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "provider": "UUMit AI Content Tools",
   "base_url": "https://shirt-conjoined-rasping.ngrok-free.dev",
   "skills": [
@@ -19,7 +19,7 @@
         "text": {
           "type": "string",
           "required": true,
-          "desc": "待检测文本，最少10字符"
+          "desc": "待检测文本，最少50字符"
         }
       },
       "tags": [
@@ -28,9 +28,32 @@
         "内容审核",
         "原创检测"
       ],
-      "detail": "零API依赖的纯规则引擎AI文本检测。分析句子长度变异系数、12种AI典型句式匹配、过渡词密度、填充词频率。即时返回0-100分+ verdict + 详细指标。适合内容审核Agent、教育机构、自媒体检测。",
+      "detail": "零API依赖的纯规则引擎AI文本检测。分析句子长度变异系数、12种AI典型句式匹配、过渡词密度、填充词频率。即时返回0-100分 + verdict + 详细指标。适合内容审核Agent、教育机构、自媒体检测。",
       "test_params": {
-        "text": "In today's digital landscape, it is important to note that artificial intelligence has become a cornerstone of modern technology. Furthermore, the realm of AI continues to expand rapidly."
+        "text": "In today digital landscape, it is important to note that artificial intelligence has become a cornerstone of modern technology. Furthermore, the realm of AI continues to expand rapidly and it is worth noting the transformative impact on various industries worldwide."
+      },
+      "response_schema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "ai_detection"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "score": {
+                "type": "number"
+              },
+              "verdict": {
+                "type": "string"
+              },
+              "details": {
+                "type": "object"
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -49,7 +72,7 @@
         "content": {
           "type": "string",
           "required": true,
-          "desc": "待验证的文章内容，最少50字符"
+          "desc": "待验证的文章内容，最少20字符"
         }
       },
       "tags": [
@@ -59,9 +82,35 @@
         "写作",
         "自媒体"
       ],
-      "detail": "六维度爆款内容验证：量化分析好奇心缺口、情绪共鸣、价值实用、时效关联、叙事节奏、反直觉新颖性。纯规则引擎，零延迟。适合内容创作Agent质量把关、自媒体批量审稿。",
+      "detail": "六维度爆款内容验证：量化分析好奇心缺口、情绪共鸣、价值实用、时效关联、叙事节奏、反直觉新颖性。纯规则引擎，零延迟。适合内容创作Agent质量把关、自媒体批量审核。",
       "test_params": {
-        "content": "这是一段足够长的测试文本内容，用于验证爆款内容检测API是否能够正常工作。今天天气很好，阳光明媚，万里无云。适合出去走走，呼吸新鲜空气。"
+        "content": "这是一个足够长的测试文本内容，用于验证爆款内容检测API是否能够正常工作。今天天气很好，阳光明媚，万里无云。适合出去走走，呼吸新鲜空气。"
+      },
+      "response_schema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "viral_verification"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "total_score": {
+                "type": "integer"
+              },
+              "max_score": {
+                "type": "integer"
+              },
+              "verdict": {
+                "type": "string"
+              },
+              "dimensions": {
+                "type": "array"
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -94,6 +143,21 @@
       "detail": "实时抓取全网热榜TOP 20：知乎、微博、虎扑、百度等多平台聚合。包含排名、完整标题、来源平台、热度数值。适合Agent自动选题、热点追踪。",
       "test_params": {
         "limit": 10
+      },
+      "response_schema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "hot_topics"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "array"
+          }
+        }
       }
     }
   ],
@@ -131,7 +195,21 @@
         "AI文本检测",
         "爆款内容验证",
         "实时热点选题"
-      ]
+      ],
+      "response_schema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "array"
+          }
+        }
+      }
     }
   ]
 }

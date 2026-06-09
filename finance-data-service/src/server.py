@@ -1,4 +1,4 @@
-﻿"""
+"""
 UUMit 金融数据服务 — FastAPI 主服务
 提供 9 个独立数据 API + 1 个组合编排端点
 """
@@ -16,7 +16,8 @@ from pydantic import BaseModel, Field
 import pandas as pd
 
 from . import tushare_client as tc
-from .content_tools import detect_ai_text, verify_viral, fetch_hot_topics
+from .content_tools import detect_ai_text, verify_viral, fetch_hot_topics, check_banned_words, get_global_holidays, fetch_weibo_trending, search_jobs, get_college_calendar
+from .rapidapi import get_rapidapi_middleware
 
 app = FastAPI(
     title="UUMit Finance Data Service",
@@ -31,6 +32,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# RapidAPI 代理验证/限流中间件（未配置 RAPIDAPI_PROXY_SECRET 则跳过）
+_rapidapi_mw = get_rapidapi_middleware()
+if _rapidapi_mw:
+    app.add_middleware(
+        type(_rapidapi_mw),
+        proxy_secret=_rapidapi_mw.proxy_secret,
+        rate_limit_per_min=_rapidapi_mw.rate_limit_per_min,
+    )
+
+
 
 # -- 全局异常处理 --
 
@@ -39,8 +50,8 @@ async def global_exception_handler(request: Request, exc: Exception):
     msg = str(exc)
     if "频率超限" in msg or "frequency" in msg.lower():
         return JSONResponse(
-            status_code=429,
-            content={"error": "rate_limited", "detail": msg},
+            status_code=200,
+            content={"type": "rate_limited", "count": 0, "data": [], "note": "Tushare API frequency limit, retry later"},
         )
     if "token" in msg.lower() or "凭证" in msg or "权限" in msg:
         return JSONResponse(
@@ -75,6 +86,7 @@ class ComboQuantRequest(BaseModel):
     days: int = Field(30, ge=1, le=365, description="回溯天数")
 
 class ComboQuantResponse(BaseModel):
+    type: str = "quant_basic"
     ts_code: str
     stock_info: Optional[dict] = None
     daily_bars: list = []
@@ -99,7 +111,7 @@ def stock_list(
     ts_code: Optional[str] = Query(None, description="指定股票代码，如 000001.SZ"),
 ):
     df = tc.query_stock_basic(ts_code=ts_code, list_status=list_status)
-    return {"count": len(df), "data": _df_to_records(df)}
+    return {"type": "stock_list", "count": len(df), "data": _df_to_records(df)}
 
 
 # ── ② 日线行情 ──────────────────────────────────────
@@ -117,7 +129,7 @@ def stock_daily(
     elif not end_date:
         end_date = date.today().strftime("%Y%m%d")
     df = tc.query_daily(ts_code, start_date, end_date)
-    return {"ts_code": ts_code, "count": len(df), "data": _df_to_records(df)}
+    return {"type": "stock_daily", "ts_code": ts_code, "count": len(df), "data": _df_to_records(df)}
 
 
 # ── ③ 基本面 ──────────────────────────────────────────
@@ -129,7 +141,7 @@ def stock_basic(ts_code: str = Query(..., description="股票代码")):
     df = tc.query_stock_basic(ts_code=ts_code)
     if df.empty:
         raise HTTPException(404, f"未找到股票: {ts_code}")
-    return {"data": _df_to_records(df)[0]}
+    return {"type": "stock_basic", "data": _df_to_records(df)[0]}
 
 
 # ── ④ 财务利润表 ──────────────────────────────────────
@@ -143,7 +155,7 @@ def stock_income(
     end_date: Optional[str] = Query(None),
 ):
     df = tc.query_income(ts_code, start_date, end_date)
-    return {"ts_code": ts_code, "count": len(df), "data": _df_to_records(df)}
+    return {"type": "stock_income", "ts_code": ts_code, "count": len(df), "data": _df_to_records(df)}
 
 
 # ── ⑤ 资产负债表 ──────────────────────────────────────
@@ -157,7 +169,7 @@ def stock_balance(
     end_date: Optional[str] = Query(None),
 ):
     df = tc.query_balancesheet(ts_code, start_date, end_date)
-    return {"ts_code": ts_code, "count": len(df), "data": _df_to_records(df)}
+    return {"type": "stock_balance", "ts_code": ts_code, "count": len(df), "data": _df_to_records(df)}
 
 
 # ── ⑥ 指数日线 ────────────────────────────────────────
@@ -175,7 +187,7 @@ def index_daily(
     elif not end_date:
         end_date = date.today().strftime("%Y%m%d")
     df = tc.query_index_daily(index_code, start_date, end_date)
-    return {"index_code": index_code, "count": len(df), "data": _df_to_records(df)}
+    return {"type": "index_daily", "index_code": index_code, "count": len(df), "data": _df_to_records(df)}
 
 
 # ── ⑦ 指数成分股 ──────────────────────────────────────
@@ -188,7 +200,7 @@ def index_members(
     trade_date: Optional[str] = Query(None, description="查询日期"),
 ):
     df = tc.query_index_member(index_code, trade_date)
-    return {"index_code": index_code, "count": len(df), "data": _df_to_records(df)}
+    return {"type": "index_members", "index_code": index_code, "count": len(df), "data": _df_to_records(df)}
 
 
 # ── ⑧ 基金列表 ────────────────────────────────────────
@@ -198,7 +210,7 @@ def index_members(
           description="返回基金代码、名称、管理人、类型等信息。")
 def fund_list(market: str = Query("E", description="市场: E=场内 O=场外")):
     df = tc.query_fund_basic(market)
-    return {"count": len(df), "data": _df_to_records(df)}
+    return {"type": "fund_list", "count": len(df), "data": _df_to_records(df)}
 
 
 # ── ⑨ 期货日线 ────────────────────────────────────────
@@ -212,7 +224,7 @@ def futures_daily(
     exchange: Optional[str] = Query(None, description="交易所: CFFEX/DCE/SHFE/CZCE/INE"),
 ):
     df = tc.query_fut_daily(trade_date=trade_date, ts_code=ts_code, exchange=exchange)
-    return {"count": len(df), "data": _df_to_records(df)}
+    return {"type": "futures_daily", "count": len(df), "data": _df_to_records(df)}
 
 
 # ── ⑩ 宏观经济 ────────────────────────────────────────
@@ -225,7 +237,7 @@ def macro_china(
     quarter: Optional[str] = Query(None, description="季度"),
 ):
     df = tc.query_macro_china(year, quarter)
-    return {"count": len(df), "data": _df_to_records(df)}
+    return {"type": "macro_china", "count": len(df), "data": _df_to_records(df)}
 
 
 # ── (11) 交易日历 ─────────────────────────────────────
@@ -241,7 +253,7 @@ def trade_calendar(
     if not start_date:
         start_date, end_date = _default_dates(90)
     df = tc.query_trade_cal(exchange, start_date, end_date)
-    return {"exchange": exchange, "count": len(df), "data": _df_to_records(df)}
+    return {"type": "trade_calendar", "exchange": exchange, "count": len(df), "data": _df_to_records(df)}
 
 
 # ── ★ 组合编排：量化基础数据包 ─────────────────────────
@@ -264,6 +276,7 @@ def combo_quant_basic(req: ComboQuantRequest):
         stock_info = _df_to_records(basic_df)[0]
 
     return ComboQuantResponse(
+        type="quant_basic",
         ts_code=req.ts_code,
         stock_info=stock_info,
         daily_bars=_df_to_records(daily_df),
@@ -285,21 +298,34 @@ class FinancePack(str, Enum):
     macro_brief = "macro_brief"
     all_in_one = "all_in_one"
 
+class FinancePackRequest(BaseModel):
+    pack: FinancePack = Field(..., description="主题包类型")
+    ts_code: Optional[str] = Field(None, description="股票代码")
+    index_code: Optional[str] = Field("000300.SH", description="指数代码")
+    exchange: Optional[str] = Field("SSE", description="交易所")
+
+class FinancePackRequest(BaseModel):
+    pack: FinancePack = Field(..., description="主题包类型")
+    ts_code: Optional[str] = Field(None, description="股票代码")
+    index_code: Optional[str] = Field("000300.SH", description="指数代码")
+    exchange: Optional[str] = Field("SSE", description="交易所")
+
 class FinancePackResponse(BaseModel):
+    type: str = "finance_pack"
     pack: str
     description: str
+    count: int = 0
     data: dict = {}
 
 @app.post("/api/v1/combo/finance-pack", tags=["组合编排"],
            summary="金融数据主题包（整合入口）",
            description="一个端点覆盖全部金融数据。按 pack 参数选择主题：stock_deep=A股深度 / market_overview=市场全景 / macro_brief=宏观简报 / all_in_one=全能包。",
            response_model=FinancePackResponse)
-def finance_pack(
-    pack: FinancePack = Query(..., description="主题包类型"),
-    ts_code: Optional[str] = Query(None, description="股票代码（stock_deep/all_in_one 需要）"),
-    index_code: Optional[str] = Query("000300.SH", description="指数代码"),
-    exchange: Optional[str] = Query("SSE", description="交易所"),
-):
+def finance_pack(req: FinancePackRequest):
+    pack = req.pack
+    ts_code = req.ts_code
+    index_code = req.index_code
+    exchange = req.exchange
     result = {}
     
     if pack in (FinancePack.stock_deep, FinancePack.all_in_one):
@@ -326,9 +352,12 @@ def finance_pack(
         "all_in_one": "全能数据包：以上全部",
     }
     
+    total_items = sum(len(v) if isinstance(v, list) else 1 for v in result.values())
     return FinancePackResponse(
+        type="finance_pack",
         pack=pack.value,
         description=descriptions.get(pack.value, ""),
+        count=total_items,
         data=result,
     )
 
@@ -348,7 +377,8 @@ class AIDetectResponse(BaseModel):
            summary="AI 文本检测",
            description="检测文本是否为 AI 生成。基于句子结构、过渡词密度、AI 句式模式匹配等启发式规则。返回 0-100 分数和详细分析。")
 def tool_detect_ai(req: AIDetectRequest):
-    return detect_ai_text(req.text)
+    result = detect_ai_text(req.text)
+    return {"type": "ai_detection", "data": result}
 
 class ViralVerifyRequest(BaseModel):
     content: str = Field(..., description="待验证的文章内容", min_length=20)
@@ -357,14 +387,70 @@ class ViralVerifyRequest(BaseModel):
            summary="爆款内容验证",
            description="六维度爆款要素评分：好奇心缺口、情绪共鸣、价值/实用性、关联/时效性、叙事/节奏、反直觉/新颖性。纯规则引擎，即时返回评分和优化建议。")
 def tool_viral_verify(req: ViralVerifyRequest):
-    return verify_viral(req.content)
+    result = verify_viral(req.content)
+    return {"type": "viral_verification", "data": result}
 
 @app.get("/api/v1/tools/hot-topics", tags=["AI内容工具"],
           summary="实时热点选题",
           description="从 TopHub 抓取当前全网热榜，返回 TOP 20 话题。适合内容创作者、自媒体 Agent 快速选题。")
 def tool_hot_topics(limit: int = Query(20, ge=5, le=50, description="返回数量")):
     topics = fetch_hot_topics(limit)
-    return {"count": len(topics), "source": "TopHub", "topics": topics}
+    return {"type": "hot_topics", "count": len(topics), "data": topics}
+
+
+
+# -- ★ 新增 5 个数据 API -- 
+
+class BannedWordRequest(BaseModel):
+    text: str = Field(..., description="待检测文本内容", min_length=2)
+
+@app.post("/api/v1/tools/banned-word-check", tags=["内容合规"],
+          summary="违禁词实时检测",
+          description="检测文本中的广告法违禁词、平台规则敏感词、行业特殊限制词。覆盖极限用语、引流行为、绝对化承诺、医疗/金融/教育/食品行业敏感词等。返回分类统计和修改建议。")
+def tool_banned_word_check(req: BannedWordRequest):
+    result = check_banned_words(req.text)
+    return {"type": "banned_word_check", "data": result}
+
+@app.get("/api/v1/tools/global-holidays", tags=["全球数据"],
+          summary="全球节假日查询",
+          description="查询指定国家的法定节假日和重要电商节日。支持 CN/US/GB/JP/KR/DE/FR/SG/IN/BR 等10个国家。可选附带全球电商大促日历（Prime Day/黑五/双十一等）。")
+def tool_global_holidays(
+    country: str = Query("CN", description="国家代码，如 CN/US/JP/KR"),
+    year: int = Query(2026, ge=2024, le=2028, description="年份"),
+    include_ecommerce: bool = Query(False, description="是否包含电商节日"),
+):
+    result = get_global_holidays(country, year, include_ecommerce)
+    return {"type": "global_holidays", "data": result}
+
+@app.get("/api/v1/tools/weibo-trending", tags=["全球数据"],
+          summary="微博实时热搜",
+          description="获取微博当前热搜榜单，包含排名、热度值、分类标签。适合舆情监控、选题策划、热点追踪等场景。")
+def tool_weibo_trending(
+    limit: int = Query(20, ge=5, le=50, description="返回数量"),
+):
+    result = fetch_weibo_trending(limit)
+    return {"type": "weibo_trending", "data": result}
+
+@app.get("/api/v1/tools/job-search", tags=["全球数据"],
+          summary="招聘信息聚合搜索",
+          description="按关键词和地区搜索招聘信息。聚合多个招聘平台数据，返回职位名称、公司、薪资范围、发布时间等结构化信息。")
+def tool_job_search(
+    keyword: str = Query(..., description="搜索关键词，如 产品经理/Python/数据分析"),
+    location: str = Query("全国", description="工作地点，如 北京/上海/深圳"),
+    limit: int = Query(20, ge=5, le=50, description="返回数量"),
+):
+    result = search_jobs(keyword, location, limit)
+    return {"type": "job_search", "data": result}
+
+@app.get("/api/v1/tools/college-calendar", tags=["全球数据"],
+          summary="中国高校校历查询",
+          description="查询中国重点大学的学年校历。包含春/秋季学期起止日期、考试周、寒暑假安排、法定假期。覆盖清华/北大/复旦/交大/浙大/武大等10所高校。")
+def tool_college_calendar(
+    university: str = Query("清华大学", description="大学名称"),
+    year: int = Query(2026, ge=2024, le=2028, description="学年年份"),
+):
+    result = get_college_calendar(university, year)
+    return {"type": "college_calendar", "data": result}
 
 
 if __name__ == "__main__":

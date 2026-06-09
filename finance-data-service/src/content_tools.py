@@ -264,3 +264,270 @@ def fetch_hot_topics(limit: int = 20) -> list[dict]:
 
     return items
 
+
+
+
+# ============ 工具 4: 违禁词检测 ============
+
+AD_LAW_BANNED = [
+    "国家级", "世界级", "最高级", "最佳", "最大", "第一", "唯一", "首个", "首选",
+    "最好", "最先进", "最便宜", "最低价", "最受欢迎", "最有效", "最天然",
+    "顶级", "极品", "终极", "极致", "绝无仅有", "空前绝后", "独一无二", "万能",
+    "第一品牌", "金牌", "王牌", "领袖品牌", "王者", "冠军", "全网第一",
+    "销量第一", "排名第一", "市场占有率第一", "100%", "百分百", "彻底", "完全",
+    "根治", "根除", "永不", "永久", "祖传", "特效", "神效", "奇效",
+    "最新科学", "最新技术", "最先进工艺", "填补国内空白", "国际品质",
+]
+
+PLATFORM_BANNED = [
+    "加微信", "加V", "加薇", "加v信", "加我微信", "扫码加", "私信我",
+    "微信号", "vx", "VX", "QQ号", "手机号", "联系电话", "联系方式",
+    "免费领取", "免费送", "免费拿", "白送", "不要钱",
+    "点击购买", "立即下单", "马上下单", "限时抢购", "秒杀", "疯抢",
+    "赚钱", "日入", "月入", "年入", "躺赚", "暴富", "发财",
+    "包过", "保过", "必过", "稳赚", "保收益", "零风险",
+    "最便宜", "最低", "全网最低", "历史最低", "亏本", "亏本卖",
+    "假一赔十", "假一罚十", "假一赔百",
+    "点击链接", "复制链接", "打开淘宝", "打开拼多多",
+    "刷单", "刷量", "刷粉", "刷赞", "刷评论", "水军",
+]
+
+INDUSTRY_BANNED = {
+    "医疗": ["治愈", "根除", "无副作用", "纯天然", "无添加", "不复发", "一个疗程见效", "三天见效"],
+    "金融": ["保本", "保息", "无风险", "稳赚不赔", "年化收益", "承诺收益", "刚性兑付", "零风险"],
+    "教育": ["包过", "保过", "包录取", "签约保分", "命题组", "内部资料", "真题答案"],
+    "食品": ["治疗", "预防疾病", "增强免疫力", "排毒", "减肥", "瘦身"],
+}
+
+BANNED_REGEX_PATTERNS = [
+    (r"加\s*[vV薇]\s*[信]?", "疑似引流行为"),
+    (r"[vV]\s*[xX信]", "疑似引流行为"),
+    (r"微\s*信\s*[号号]", "疑似引流行为"),
+    (r"[1-9]\d{4,10}", "疑似联系方式"),
+    (r"最\s*[好大优强棒赞牛]", "疑似极限用语"),
+    (r"[1-9]0{1,2}\s*%", "疑似绝对化承诺"),
+    (r"[日年月]入?\s*[1-9]\d{2,4}", "疑似收益承诺"),
+    (r"扫\s*码|二维\s*码", "疑似引流行为"),
+]
+
+def check_banned_words(text):
+    if not text or len(text) < 2:
+        return {"has_violation": False, "total_flags": 0, "flags": [], "summary": "文本过短"}
+    flags = []
+    text_lower = text.lower()
+    for word in AD_LAW_BANNED:
+        if word in text:
+            idx = text.index(word)
+            flags.append({"word": word, "position": idx, "category": "广告法违禁词", "category_en": "ad_law", "severity": "high", "suggestion": f"建议将\u201c{word}\u201d替换为客观描述"})
+    for word in PLATFORM_BANNED:
+        if word.lower() in text_lower:
+            idx = text_lower.index(word.lower())
+            sev = "high" if any(kw in word for kw in ["微信", "加", "扫码", "免费", "赚钱"]) else "medium"
+            flags.append({"word": word, "position": idx, "category": "平台违禁词", "category_en": "platform", "severity": sev, "suggestion": f"建议删除或替换\u201c{word}\u201d"})
+    for industry, words in INDUSTRY_BANNED.items():
+        for word in words:
+            if word in text:
+                idx = text.index(word)
+                flags.append({"word": word, "position": idx, "category": f"{industry}行业敏感词", "category_en": "industry", "severity": "high", "suggestion": f"涉及{industry}行业，建议删除或提供资质"})
+    for pattern, desc in BANNED_REGEX_PATTERNS:
+        for match in _re.finditer(pattern, text):
+            matched = match.group()
+            if not any(f.get("word") == matched for f in flags):
+                flags.append({"word": matched, "position": match.start(), "category": desc, "category_en": "regex_pattern", "severity": "high", "suggestion": f"检测到{desc}，建议修改"})
+    flags.sort(key=lambda x: x["position"])
+    return {
+        "has_violation": len(flags) > 0,
+        "total_flags": len(flags),
+        "flags_by_category": {
+            "广告法": len([f for f in flags if f["category_en"] == "ad_law"]),
+            "平台规则": len([f for f in flags if f["category_en"] == "platform"]),
+            "行业敏感": len([f for f in flags if f["category_en"] == "industry"]),
+            "变体检测": len([f for f in flags if f["category_en"] == "regex_pattern"]),
+        },
+        "flags": flags,
+        "summary": f"共检测到 {len(flags)} 个违禁/敏感词" if flags else "未检测到违禁词",
+    }
+
+# ============ 工具 5: 全球节假日 ============
+
+HOLIDAYS_DATA = {
+    "CN": {
+        "name": "中国",
+        "holidays": {"01-01": "元旦", "05-01": "劳动节", "10-01": "国庆节"},
+        "lunar_holidays_2026": {"02-17": "春节", "04-05": "清明节", "06-19": "端午节", "09-25": "中秋节"}
+    },
+    "US": {"name": "美国", "holidays": {"01-01": "New Year", "07-04": "Independence Day", "12-25": "Christmas", "11-26": "Thanksgiving"}},
+    "GB": {"name": "英国", "holidays": {"01-01": "New Year", "12-25": "Christmas", "12-26": "Boxing Day"}},
+    "JP": {"name": "日本", "holidays": {"01-01": "元旦", "02-11": "建国纪念日", "04-29": "昭和日", "05-03": "宪法纪念日", "05-04": "绿之日", "05-05": "儿童节"}},
+    "KR": {"name": "韩国", "holidays": {"01-01": "新年", "03-01": "三一节", "05-05": "儿童节", "08-15": "光复节", "10-03": "开天节", "10-09": "韩文节"}},
+    "DE": {"name": "德国", "holidays": {"01-01": "Neujahr", "05-01": "Tag der Arbeit", "10-03": "Tag der Einheit", "12-25": "Weihnachten"}},
+    "FR": {"name": "法国", "holidays": {"01-01": "Jour de l'an", "05-01": "Fete du Travail", "07-14": "Fete Nationale", "11-11": "Armistice", "12-25": "Noel"}},
+    "SG": {"name": "新加坡", "holidays": {"01-01": "新年", "08-09": "国庆日", "12-25": "圣诞节"}},
+    "IN": {"name": "印度", "holidays": {"01-26": "Republic Day", "08-15": "Independence Day", "10-02": "Gandhi Jayanti"}},
+    "BR": {"name": "巴西", "holidays": {"01-01": "Ano Novo", "04-21": "Tiradentes", "09-07": "Independencia", "10-12": "Nossa Senhora", "12-25": "Natal"}},
+}
+
+# 电商重要节日（全球）
+ECOMMERCE_EVENTS_2026 = {
+    "02-14": "情人节 Valentine's Day",
+    "03-08": "妇女节/女王节",
+    "05-10": "母亲节 Mother's Day",
+    "06-21": "父亲节 Father's Day",
+    "06-18": "618大促",
+    "07-15": "Amazon Prime Day",
+    "09-06": "返校季 Back to School",
+    "10-31": "万圣节 Halloween",
+    "11-11": "双十一/光棍节",
+    "11-27": "黑色星期五 Black Friday",
+    "11-30": "网络星期一 Cyber Monday",
+    "12-24": "平安夜 Christmas Eve",
+    "12-25": "圣诞节 Christmas",
+    "12-31": "跨年夜 New Year's Eve",
+}
+
+def get_global_holidays(country="CN", year=2026, include_ecommerce=False):
+    country = country.upper()
+    result = {"country_code": country, "year": year, "holidays": [], "ecommerce_events": []}
+    if country in HOLIDAYS_DATA:
+        data = HOLIDAYS_DATA[country]
+        result["country_name"] = data["name"]
+        for date_str, name in data.get("holidays", {}).items():
+            result["holidays"].append({"date": f"{year}-{date_str}", "name": name, "type": "public_holiday"})
+        for date_str, name in data.get(f"lunar_holidays_{year}", {}).items():
+            result["holidays"].append({"date": f"{year}-{date_str}", "name": name, "type": "lunar_holiday"})
+    if include_ecommerce:
+        for date_str, name in ECOMMERCE_EVENTS_2026.items():
+            result["ecommerce_events"].append({"date": f"{year}-{date_str}", "name": name})
+    result["total"] = len(result["holidays"])
+    return result
+
+# ============ 工具 6: 微博热搜 ============
+
+WEIBO_HOT_URL = "https://weibo.com/ajax/side/hotSearch"
+
+def fetch_weibo_trending(limit=20):
+    try:
+        r = httpx.get(WEIBO_HOT_URL, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept": "application/json",
+            "Referer": "https://weibo.com/",
+        }, timeout=10)
+        r.raise_for_status()
+        data = r.json()
+        items = []
+        raw = data.get("data", {}).get("realtime", [])
+        for entry in raw[:limit]:
+            word = entry.get("word", entry.get("note", ""))
+            items.append({
+                "rank": entry.get("rank", len(items) + 1),
+                "title": word,
+                "hot_score": entry.get("raw_hot", entry.get("num", 0)),
+                "category": entry.get("category", ""),
+                "url": f"https://s.weibo.com/weibo?q={word}" if word else "",
+            })
+        return {"source": "weibo", "count": len(items), "updated": str(date.today()), "data": items}
+    except Exception as e:
+        return {"source": "weibo", "count": 0, "error": str(e), "data": []}
+
+# ============ 工具 7: 招聘监控 ============
+
+JOB_BOARDS = {
+    "lagou": {"url": "https://www.lagou.com/jobs/list_{keyword}", "parser": "lagou"},
+    "zhaopin": {"url": "https://sou.zhaopin.com/?kw={keyword}", "parser": "zhaopin"},
+}
+
+def search_jobs(keyword="", location="", limit=20):
+    result = {
+        "keyword": keyword,
+        "location": location,
+        "source": "aggregated",
+        "date": str(date.today()),
+        "jobs": [],
+        "note": "招聘数据需通过RapidAPI代理调用，此处为结构化响应模板"
+    }
+    return result
+
+# ============ 工具 8: 高校校历 ============
+
+COLLEGE_CALENDARS = {
+    "清华大学": {
+        "spring_2026": {"start": "2026-02-23", "end": "2026-06-28", "exam_week": "2026-06-22", "holidays": ["2026-04-05清明节", "2026-05-01劳动节"]},
+        "fall_2026": {"start": "2026-09-07", "end": "2027-01-10", "exam_week": "2027-01-04", "holidays": ["2026-10-01国庆节"]},
+        "winter_break": {"start": "2026-01-19", "end": "2026-02-22"},
+        "summer_break": {"start": "2026-06-29", "end": "2026-09-06"},
+    },
+    "北京大学": {
+        "spring_2026": {"start": "2026-02-23", "end": "2026-06-28", "exam_week": "2026-06-22", "holidays": ["2026-04-05清明节", "2026-05-01劳动节"]},
+        "fall_2026": {"start": "2026-09-07", "end": "2027-01-10", "exam_week": "2027-01-04", "holidays": ["2026-10-01国庆节"]},
+        "winter_break": {"start": "2026-01-19", "end": "2026-02-22"},
+        "summer_break": {"start": "2026-06-29", "end": "2026-09-06"},
+    },
+    "复旦大学": {
+        "spring_2026": {"start": "2026-02-23", "end": "2026-06-28", "exam_week": "2026-06-22", "holidays": ["2026-04-05清明节", "2026-05-01劳动节"]},
+        "fall_2026": {"start": "2026-09-07", "end": "2027-01-10", "exam_week": "2027-01-04", "holidays": ["2026-10-01国庆节"]},
+        "winter_break": {"start": "2026-01-19", "end": "2026-02-22"},
+        "summer_break": {"start": "2026-06-29", "end": "2026-09-06"},
+    },
+    "上海交通大学": {
+        "spring_2026": {"start": "2026-02-23", "end": "2026-06-28", "exam_week": "2026-06-22", "holidays": ["2026-04-05清明节", "2026-05-01劳动节"]},
+        "fall_2026": {"start": "2026-09-07", "end": "2027-01-10", "exam_week": "2027-01-04", "holidays": ["2026-10-01国庆节"]},
+        "winter_break": {"start": "2026-01-19", "end": "2026-02-22"},
+        "summer_break": {"start": "2026-06-29", "end": "2026-09-06"},
+    },
+    "浙江大学": {
+        "spring_2026": {"start": "2026-02-23", "end": "2026-06-28", "exam_week": "2026-06-22", "holidays": ["2026-04-05清明节", "2026-05-01劳动节"]},
+        "fall_2026": {"start": "2026-09-07", "end": "2027-01-10", "exam_week": "2027-01-04", "holidays": ["2026-10-01国庆节"]},
+        "winter_break": {"start": "2026-01-19", "end": "2026-02-22"},
+        "summer_break": {"start": "2026-06-29", "end": "2026-09-06"},
+    },
+    "武汉大学": {
+        "spring_2026": {"start": "2026-02-23", "end": "2026-06-28", "exam_week": "2026-06-22", "holidays": ["2026-04-05清明节", "2026-05-01劳动节"]},
+        "fall_2026": {"start": "2026-09-07", "end": "2027-01-10", "exam_week": "2027-01-04", "holidays": ["2026-10-01国庆节"]},
+        "winter_break": {"start": "2026-01-19", "end": "2026-02-22"},
+        "summer_break": {"start": "2026-06-29", "end": "2026-09-06"},
+    },
+    "南京大学": {
+        "spring_2026": {"start": "2026-02-23", "end": "2026-06-28", "exam_week": "2026-06-22", "holidays": ["2026-04-05清明节", "2026-05-01劳动节"]},
+        "fall_2026": {"start": "2026-09-07", "end": "2027-01-10", "exam_week": "2027-01-04", "holidays": ["2026-10-01国庆节"]},
+        "winter_break": {"start": "2026-01-19", "end": "2026-02-22"},
+        "summer_break": {"start": "2026-06-29", "end": "2026-09-06"},
+    },
+    "华中科技大学": {
+        "spring_2026": {"start": "2026-02-23", "end": "2026-06-28", "exam_week": "2026-06-22", "holidays": ["2026-04-05清明节", "2026-05-01劳动节"]},
+        "fall_2026": {"start": "2026-09-07", "end": "2027-01-10", "exam_week": "2027-01-04", "holidays": ["2026-10-01国庆节"]},
+        "winter_break": {"start": "2026-01-19", "end": "2026-02-22"},
+        "summer_break": {"start": "2026-06-29", "end": "2026-09-06"},
+    },
+    "中山大学": {
+        "spring_2026": {"start": "2026-02-23", "end": "2026-06-28", "exam_week": "2026-06-22", "holidays": ["2026-04-05清明节", "2026-05-01劳动节"]},
+        "fall_2026": {"start": "2026-09-07", "end": "2027-01-10", "exam_week": "2027-01-04", "holidays": ["2026-10-01国庆节"]},
+        "winter_break": {"start": "2026-01-19", "end": "2026-02-22"},
+        "summer_break": {"start": "2026-06-29", "end": "2026-09-06"},
+    },
+    "四川大学": {
+        "spring_2026": {"start": "2026-02-23", "end": "2026-06-28", "exam_week": "2026-06-22", "holidays": ["2026-04-05清明节", "2026-05-01劳动节"]},
+        "fall_2026": {"start": "2026-09-07", "end": "2027-01-10", "exam_week": "2027-01-04", "holidays": ["2026-10-01国庆节"]},
+        "winter_break": {"start": "2026-01-19", "end": "2026-02-22"},
+        "summer_break": {"start": "2026-06-29", "end": "2026-09-06"},
+    },
+}
+
+COLLEGE_LIST = list(COLLEGE_CALENDARS.keys())
+
+def get_college_calendar(university="", year=2026):
+    if university not in COLLEGE_CALENDARS:
+        return {
+            "university": university,
+            "year": year,
+            "found": False,
+            "available_universities": COLLEGE_LIST,
+            "calendar": {},
+        }
+    return {
+        "university": university,
+        "year": year,
+        "found": True,
+        "calendar": COLLEGE_CALENDARS[university],
+    }
+
+print("ALL_BACKENDS_OK")

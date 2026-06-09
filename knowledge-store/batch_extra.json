@@ -1,0 +1,283 @@
+[
+  {
+    "title": "A股量化信号检测工具（箱体突破+MA5回踩双形态扫描）",
+    "description": "基于纯Python实现的A股短线量化信号检测工具。内置两种经典买入形态：箱体突破（15日区间内放量突破+成交量放大15%确认）和MA5回踩（多头排列+近10日触碰MA5≤2次+下影线反弹1.5%）。输入股票日线数据即可输出信号列表，含日期/形态类型/信号强度/入场价/止损价。附5个A股历史回测案例。适合有一定Python基础的量化投资者。",
+    "category": "digital_asset",
+    "tags": [
+      "A股",
+      "量化",
+      "选股",
+      "Python",
+      "信号检测",
+      "箱体突破",
+      "MA5"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "3900",
+    "has_deliverable": true
+  },
+  {
+    "title": "AI文本检测工具（0-100分数+详细指标，区分AI与人工写作）",
+    "description": "精准检测文本是否为AI生成。基于句子长度方差、过渡词密度、AI典型句式模式匹配等启发式规则，输出0-100分的AI概率评分。附详细指标：句子长度均匀度、AI过渡词使用率、AI填充句占比。适用于学术论文审稿、自媒体内容审核、企业文案质检。规则引擎，零延迟，无数据外泄风险。",
+    "category": "digital_asset",
+    "tags": [
+      "AI检测",
+      "文本分析",
+      "内容审核",
+      "学术",
+      "写作工具"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "1900",
+    "has_deliverable": true
+  },
+  {
+    "title": "爆款内容六维验证工具（好奇心+情绪+实用+时效+节奏+新颖 逐项评分）",
+    "description": "不靠玄学，用6个可量化维度给你的文章打分：好奇心缺口（标题是否制造悬念）、情绪共鸣（能否引发喜怒哀乐）、价值/实用性（读者看完能拿来用吗）、关联/时效性（是否绑定当下热点）、叙事/节奏（开头3秒能否留住人）、反直觉/新颖性（有没有打破认知的信息）。每项0-10分+总评分+针对性优化建议。适合自媒体作者、内容运营、短视频编导。",
+    "category": "digital_asset",
+    "tags": [
+      "爆款",
+      "内容验证",
+      "评分",
+      "自媒体",
+      "写作",
+      "六维分析"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "1900",
+    "has_deliverable": true
+  },
+  {
+    "title": "全网热榜实时选题工具（32平台热搜聚合+财经筛选+选题建议）",
+    "description": "聚合微博/知乎/百度/抖音/B站/小红书等32个平台实时热搜，一键筛选财经相关话题，自动匹配A股相关公司。每条热搜关联对应的股票代码+行业分类+历史热度走势。适合财经自媒体/股票社区运营/金融类内容创作者快速找选题。每日更新。",
+    "category": "digital_asset",
+    "tags": [
+      "热榜",
+      "热搜",
+      "选题",
+      "财经",
+      "自媒体",
+      "32平台"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "2900",
+    "has_deliverable": true
+  },
+  {
+    "title": "小红书爆款标题公式库（100个模板+按行业分类+高转化词库）",
+    "description": "不是零散的标题灵感，是系统化的公式库。100个经过数据验证的小红书爆款标题模板，按美妆/穿搭/探店/家居/美食/职场/教育/母婴/健身/科技10大行业分类。每个模板含：标题结构公式、2个真实爆款案例、高转化关键词替换表。附赠小红书搜索高频词库（按行业分类TOP100词）。照着填就能用，适合小红书博主/品牌运营/新媒体小编。",
+    "category": "digital_asset",
+    "tags": [
+      "小红书",
+      "标题",
+      "模板",
+      "爆款",
+      "文案",
+      "10大行业",
+      "词库"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "2900",
+    "has_deliverable": true
+  },
+  {
+    "title": "个人简历模板超级包（20个行业×50个模板+AI优化提示词）",
+    "description": "覆盖20个热门行业的50个简历模板：互联网/金融/教育/医疗/制造/零售/地产/传媒/咨询/法律/设计/建筑/物流/能源/旅游/农业/体育/政府/非营利/自由职业。每个模板含：中英文双语版本、可编辑Word格式、行业关键技能词清单、ATS简历筛选系统优化要点。附一个AI简历优化提示词，把你写的草稿变成专业简历。找工作/跳槽/实习生通用。",
+    "category": "digital_asset",
+    "tags": [
+      "简历",
+      "模板",
+      "求职",
+      "面试",
+      "行业",
+      "Word",
+      "英文"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "2900",
+    "has_deliverable": true
+  },
+  {
+    "title": "小红书账号冷启动30天SOP（日更计划+选题日历+涨粉实操）",
+    "description": "从0到1000粉丝的系统化30天作战计划。内容包含：账号定位三步法（你是谁/给谁看/提供什么价值）、30天日更选题日历（含每日选题+标题建议+发布时间）、涨粉关键动作清单（评论区运营/对标账号互动/话题标签策略）、前30天数据复盘模板（阅读量/互动率/涨粉数）。适合想认真做小红书但不知道从哪开始的新手博主。",
+    "category": "digital_asset",
+    "tags": [
+      "小红书",
+      "冷启动",
+      "SOP",
+      "涨粉",
+      "选题",
+      "运营",
+      "30天"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "2900",
+    "has_deliverable": true
+  },
+  {
+    "title": "Excel函数公式速查手册（200+个函数+分场景实战案例）",
+    "description": "从VLOOKUP到LAMBDA，覆盖200+个Excel常用函数。不是干巴巴的语法说明，每个函数配一个真实的职场场景案例。按场景分类索引：数据清洗、统计分析、财务计算、文本处理、日期时间、查找引用六大门类。含：快捷键速查表、数组公式进阶、Power Query常用M函数附录。Excel新手到进阶全阶段适用，办公文员/数据分析师/财务人员必备。",
+    "category": "digital_asset",
+    "tags": [
+      "Excel",
+      "函数",
+      "公式",
+      "办公",
+      "数据",
+      "速查",
+      "案例"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "1900",
+    "has_deliverable": true
+  },
+  {
+    "title": "商业计划书模板库（10个行业+投资人视角+财务预测模型）",
+    "description": "面向投资人的商业计划书模板，非学生作业。覆盖10个热门行业：SaaS/电商/教育/医疗健康/新能源/消费品牌/AI应用/金融科技/餐饮连锁/内容平台。每个模板含：执行摘要框架、市场分析页、竞品对比表、商业模式画布、财务预测模型（3年收入/成本/利润自动计算Excel）、融资需求页。附投资人最常问的20个问题清单+回答策略。适合创业者/融资中的初创团队。",
+    "category": "digital_asset",
+    "tags": [
+      "商业计划书",
+      "BP",
+      "融资",
+      "创业",
+      "模板",
+      "财务",
+      "投资人"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "3900",
+    "has_deliverable": true
+  },
+  {
+    "title": "自媒体365天选题库（全年日更话题+节日热点+突发事件应对）",
+    "description": "再也不愁今天发什么。365天日更选题库，覆盖：每月固定热点话题（高考/双十一/春节等）、每周常规选题（周一职场/周三情感/周五娱乐）、突发事件应对模板（热点事件3小时快速出稿框架）、10大自媒体平台的选题偏好差异说明。Excel格式，可按日期/平台/类型筛选，每个选题标注适合的内容形式（图文/短视频/长文/直播）。适合日更型自媒体人、新媒体运营团队。",
+    "category": "digital_asset",
+    "tags": [
+      "自媒体",
+      "选题",
+      "日更",
+      "365天",
+      "内容日历",
+      "热点",
+      "运营"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "2900",
+    "has_deliverable": true
+  },
+  {
+    "title": "私域运营全流程SOP手册（引流+转化+复购+裂变四步闭环）",
+    "description": "一套完整的私域运营操作手册，覆盖四个核心环节：引流（朋友圈/社群/公众号/视频号四大渠道的加粉方法）、转化（朋友圈成交话术+社群发售流程+一对一私聊脚本）、复购（会员体系设计+积分玩法+定期触达策略）、裂变（拼团/分销/推荐有礼的活动模板）。含：20个可直接复用的社群运营话术模板、朋友圈发圈排期表、客户标签体系建设指南。适合电商卖家/知识付费/实体店老板搭建私域体系。",
+    "category": "digital_asset",
+    "tags": [
+      "私域",
+      "运营",
+      "SOP",
+      "社群",
+      "引流",
+      "转化",
+      "裂变"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "3900",
+    "has_deliverable": true
+  },
+  {
+    "title": "跨境电商新手入门全流程指南（开店+选品+物流+合规一站式）",
+    "description": "面向零基础跨境电商新手的完整入门手册。覆盖四大平台（Amazon/Shopee/TikTok Shop/Temu）的注册开店流程、选品方法论（含2026年热门品类推荐+避坑清单）、跨境物流方案对比（FBA vs FBM vs 海外仓成本分析）、合规要点（各国税务/产品认证/知识产权）。无理论堆砌，每一步都附操作截图和工具推荐。附：跨境卖家常用工具清单（50+个网站和软件）。",
+    "category": "digital_asset",
+    "tags": [
+      "跨境电商",
+      "新手",
+      "入门",
+      "Amazon",
+      "Shopee",
+      "选品",
+      "物流"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "2900",
+    "has_deliverable": true
+  },
+  {
+    "title": "财务分析模板Excel套装（三表联动+杜邦分析+现金流预测）",
+    "description": "一套让非财务背景也能做专业分析的Excel模板。包含：利润表/资产负债表/现金流量表三表联动模板（修改一处自动更新全部）、杜邦分析模型（ROE拆解至净利率/周转率/杠杆率逐层下钻）、现金流预测模型（12个月滚动预测+敏感性分析）、财务比率自动计算器（偿债/营运/盈利/成长四类30+指标，自动对标行业均值）。适合创业者做财务分析、投资人做企业尽调、MBA学生做案例研究。",
+    "category": "digital_asset",
+    "tags": [
+      "财务",
+      "Excel",
+      "模板",
+      "杜邦分析",
+      "现金流",
+      "三表",
+      "估值"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "3900",
+    "has_deliverable": true
+  },
+  {
+    "title": "AI绘画提示词大全（Midjourney+Stable Diffusion 500词条+风格库）",
+    "description": "不是随便堆砌词条，是按风格体系化整理的AI绘画提示词库。覆盖Midjourney和Stable Diffusion两大主流工具。含：500个高质量提示词（人物肖像/场景建筑/产品渲染/概念艺术/UI素材五大类）、风格关键词速查表（200种艺术风格+对应视觉效果预览说明）、负面提示词模板（去除畸形手指/模糊/水印等常见问题）、参数设置速查卡（宽高比/混乱度/风格化/模型版本）。适合设计师/电商美工/自媒体配图/AI绘画爱好者。",
+    "category": "digital_asset",
+    "tags": [
+      "AI绘画",
+      "Midjourney",
+      "Stable Diffusion",
+      "提示词",
+      "设计",
+      "素材",
+      "风格"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "2900",
+    "has_deliverable": true
+  },
+  {
+    "title": "公众号排版美学模板包（10种风格+SVG交互+品牌配色指南）",
+    "description": "让你的公众号看起来像专业媒体。10种排版风格模板：极简商务风/文艺清新风/科技极客风/母婴温暖风/教育学术风/美食诱人风/时尚潮流风/金融专业风/政务大气风/情感治愈风。每种风格含：封面图模板（Canva可编辑源文件）、正文排版参数（字号/行距/字间距/页边距精确值）、配色方案（主色+辅色+强调色Hex码）、SVG交互组件（点击展开/滑动切换/进度条动画）。附品牌配色工具使用指南。适合公众号运营/自媒体编辑/品牌内容团队。",
+    "category": "digital_asset",
+    "tags": [
+      "公众号",
+      "排版",
+      "模板",
+      "SVG",
+      "配色",
+      "品牌",
+      "10种风格"
+    ],
+    "capability_type": "data",
+    "delivery_mode": "instant",
+    "pricing_model": "fixed",
+    "price_ut": "2900",
+    "has_deliverable": true
+  }
+]
